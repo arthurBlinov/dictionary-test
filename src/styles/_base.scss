@@ -1,0 +1,22 @@
+// bg, colors
+$bg-main: rgb(4, 4, 145);
+$bg-buttons-lists: #fff;
+$bg-edit-dict: rgb(246, 242, 242);
+$gray: rgb(139, 137, 137);
+$white: #fff;
+$red: rgb(225, 3, 3);
+$black: rgb(24, 22, 22);
+// sizes
+$font-size: 1.5rem;
+$big-font-size: 2rem;
+$small-font-size: 1rem;
+$border-radius: 3rem;
+*{
+    margin: 0;
+    padding: 0;
+}
+*,
+html{
+    box-sizing: border-box;
+    font-size: 62.54%;
+}

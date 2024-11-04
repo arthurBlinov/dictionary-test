@@ -1,26 +1,29 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <Navbar v-if="showNavbar"/>
+    <RouterView />
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Navbar from './components/Navbar.vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
-}
+    Navbar,
+  },
+  setup() {
+    const route = useRoute();
+
+    // Check if Navbar should be shown based on route
+    const showNavbar = computed(() => route.name !== 'main');
+    return {
+      showNavbar,
+    };
+  },
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
