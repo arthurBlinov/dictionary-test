@@ -2,13 +2,20 @@
     <BodyForAll>
       <ErrorPopup v-if="showErrorPopup" :message="errorMessage" @close="closeErrorPopup" />
       <form class="dictionary-form" @submit.prevent="handleAdd">
+        <!-- for="language1": Links the label to the input with id="language1", 
+         so clicking the label focuses on the input, improving usability. -->
         <label for="language1">Language 1</label>
+        <!-- v-model= language1 is updated with the input’s value, 
+         and if language1 changes programmatically, the input reflects 
+         that change. -->
+         <!-- :class= Dynamically adds the input-error class if isLanguage1Valid is false -->
         <input type="text" id="language1" v-model="language1" placeholder="Language" :class="{ 'input-error': !isLanguage1Valid }" />
   
         <label for="language2">Language 2</label>
         <input type="text" id="language2" v-model="language2" placeholder="Language" :class="{ 'input-error': !isLanguage2Valid }"/>
   
         <ButtonsGroup>
+          <!-- disabled= if the form not valid -->
           <AddSaveBtn @click="handleAdd" :disabled="!isFormValid">Add</AddSaveBtn>
           <CancelBtn to="/dict">Cancel</CancelBtn>
         </ButtonsGroup>
@@ -26,7 +33,9 @@ import CancelBtn from './partitians/CancelBtn.vue';
 import ErrorPopup from './ErrorPopup.vue';
 
 export default {
+  // name of the component
   name: 'AddDictionary',
+  // imported components
   components: {
     BodyForAll,
     ButtonsGroup,
@@ -34,6 +43,9 @@ export default {
     CancelBtn,
     ErrorPopup
   },
+  // data() is a function that provides 
+  // an object with properties, defining the component's 
+  // state used through the component logic.
   data() {
     return {
       language1: '',
@@ -42,6 +54,9 @@ export default {
       errorMessage: '',
     };
   },
+  // Computed properties are functions that return values based on data 
+  // or other computed values, automatically updating 
+  // only when their dependencies change
   computed: {
     isLanguage1Valid() {
       return validateInput(this.language1);

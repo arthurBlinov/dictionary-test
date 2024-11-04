@@ -108,6 +108,10 @@
         }
       },
     },
+    // created() in Vue is a setup function that runs when the component is made 
+    // but before it shows up on the page. It’s used for tasks like getting data 
+    // or setting initial values before anything appears on the screen, 
+    // though it can't yet interact with HTML elements.
     async created() {
       try {
         const db = await initDB();

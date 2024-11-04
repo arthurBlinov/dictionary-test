@@ -21,6 +21,8 @@
       <ButtonsGroup>
 
         <AddSaveBtn @click="addWord" :disabled="!isFormValid">Add</AddSaveBtn>
+        <!-- :to binding allows dynamic values for the to attribute, 
+         which can change based on the component’s data or computed properties. -->
         <CancelBtn :to="`/add-edit-dictionary/${dictionaryName}`">Cancel</CancelBtn>
       </ButtonsGroup>
 

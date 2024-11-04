@@ -15,9 +15,9 @@
     },
     methods: {
         handleCancel(event) {
-            event.preventDefault(); 
-            this.onClick();
-            this.$router.push(this.to);
+            event.preventDefault(); //This prevents the default behavior of the button or link.
+            this.onClick(); //This calls a parent component’s event listener for @click, requires it
+            this.$router.push(this.to); //Navigates to the specified route path
         }
     }
   };

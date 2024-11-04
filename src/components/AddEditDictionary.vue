@@ -1,5 +1,11 @@
 <template>
      <BodyForAll>
+       <!-- v-if= if statement -->
+       <!-- :message="errorMessage": Binds the errorMessage from the parent component to the 
+        message prop in ErrorPopup, so it can display this content.
+
+        @close="closeErrorPopup": Listens for the close event from ErrorPopup, 
+        triggering the closeErrorPopup method in the parent to hide the popup. -->
       <ErrorPopup v-if="showErrorPopup" :message="errorMessage" @close="closeErrorPopup" />
       <h2>Words ({{ displayedWords.length }})</h2>
       <div class="search-container">
@@ -10,6 +16,8 @@
         />
         <font-awesome-icon icon="search" class="search-icon" />
       </div>
+      <!-- v-for in Vue is a directive used to loop over an array or object, 
+       generating a list of elements based on the items in that array or object.  -->
       <ul class="words-list">
         <li
           v-if="paginatedWords.length === 0"
@@ -66,8 +74,7 @@
   import { library } from '@fortawesome/fontawesome-svg-core';
   import { initDB, getWordsByDictionaryName } from '@/db/db';
   import BodyForAll from "./partitians/BodyForAll.vue";
-import ErrorPopup from './ErrorPopup.vue';
-  
+  import ErrorPopup from './ErrorPopup.vue';
   library.add(faSearch, faPen);
   
   export default {
@@ -75,7 +82,7 @@ import ErrorPopup from './ErrorPopup.vue';
   components: {
     FontAwesomeIcon,
     BodyForAll,
-    ErrorPopup
+    ErrorPopup,
   },
   data() {
     return {

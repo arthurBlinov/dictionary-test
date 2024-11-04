@@ -154,13 +154,13 @@
       for (const line of lines) {
         const [word, translation] = line.split(',');
 
-        // Check if word or translation is missing or too long
-        // if (word.length > 15 || translation.length > 15) {
-        //   this.errorMessage = 'Words bigger than 15 letters were not added.';
+        // Check if too long
+        if (word.length > 15 || translation.length > 15) {
+          // this.errorMessage = 'Words bigger than 15 letters were not added.';
         //   this.showErrorPopup = true;
         //   await delay(3000);
-        //   continue; // Continue to the next word
-        // }
+          continue; // Continue to the next word
+        }
 
         // Trim and check if the word already exists in the dictionary
         if (!existingWordsSet.has(word.trim())) {
