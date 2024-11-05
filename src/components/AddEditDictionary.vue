@@ -46,7 +46,7 @@
             }"
             class="edit-icon"
             >
-        <font-awesome-icon icon="pen" />
+        <font-awesome-icon icon="pen" class="pen-icon"/>
         </RouterLink>
         </li>
       </ul>
@@ -73,7 +73,7 @@
   import { faSearch, faPen } from '@fortawesome/free-solid-svg-icons';
   import { library } from '@fortawesome/fontawesome-svg-core';
   import { initDB, getWordsByDictionaryName } from '@/db/db';
-  import BodyForAll from "./partitians/BodyForAll.vue";
+  import BodyForAll from "./partials/BodyForAll.vue";
   import ErrorPopup from './ErrorPopup.vue';
   library.add(faSearch, faPen);
   
@@ -264,6 +264,9 @@
           color: $bg-main;
           cursor: pointer;
           align-self: center;
+        }
+        .pen-icon{
+          font-size: $font-size;
         }
       }
     }

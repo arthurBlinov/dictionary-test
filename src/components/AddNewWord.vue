@@ -6,7 +6,7 @@
         type="text"
         :id="language1"
         v-model="newWord"
-        placeholder="Enter word"
+        placeholder="Word"
         :class="{ 'input-error': !isNewWordValid }"
       />
   
@@ -15,7 +15,7 @@
         type="text"
         :id="language2"
         v-model="newTranslation"
-        placeholder="Enter translation"
+        placeholder="Translation"
         :class="{ 'input-error': !isNewTranslationValid }"
       />
       <ButtonsGroup>
@@ -32,10 +32,10 @@
   <script>
   import { initDB, addWordToDictionary } from '@/db/db';
   import { validateInput } from './validation/validateInput';
-  import BodyForAll from "./partitians/BodyForAll.vue";
-  import ButtonsGroup from './partitians/ButtonsGroup.vue';
-  import AddSaveBtn from './partitians/AddSaveBtn.vue';
-  import CancelBtn from './partitians/CancelBtn.vue';
+  import BodyForAll from "./partials/BodyForAll.vue";
+  import ButtonsGroup from './partials/ButtonsGroup.vue';
+  import AddSaveBtn from './partials/AddSaveBtn.vue';
+  import CancelBtn from './partials/CancelBtn.vue';
   import ErrorPopup from './ErrorPopup.vue';
   
   export default {

@@ -26,10 +26,10 @@
   <script>
 import { initDB, addDictionary } from '@/db/db'; 
 import { validateInput } from './validation/validateInput';
-import BodyForAll from "./partitians/BodyForAll.vue";
-import ButtonsGroup from './partitians/ButtonsGroup.vue';
-import AddSaveBtn from './partitians/AddSaveBtn.vue';
-import CancelBtn from './partitians/CancelBtn.vue';
+import BodyForAll from "./partials/BodyForAll.vue";
+import ButtonsGroup from './partials/ButtonsGroup.vue';
+import AddSaveBtn from './partials/AddSaveBtn.vue';
+import CancelBtn from './partials/CancelBtn.vue';
 import ErrorPopup from './ErrorPopup.vue';
 
 export default {
@@ -114,7 +114,7 @@ export default {
         border: 1px solid $gray;
         border-radius: 5px;
         margin-bottom: 15px;
-        color: $bg-main;
+        color: $black;
         background-color: $white;
         outline: none;
   

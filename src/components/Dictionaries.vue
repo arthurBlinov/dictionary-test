@@ -44,7 +44,7 @@
   import { faBook, faPen } from '@fortawesome/free-solid-svg-icons';
   import { library } from '@fortawesome/fontawesome-svg-core';
   import { initDB, getDictionaries } from '../db/db';
-  import BodyForAll from "./partitians/BodyForAll.vue";
+  import BodyForAll from "./partials/BodyForAll.vue";
   import ErrorPopup from './ErrorPopup.vue';
   
   library.add(faBook, faPen);

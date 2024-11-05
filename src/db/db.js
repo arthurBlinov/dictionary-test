@@ -37,8 +37,8 @@ export async function addDictionary(db, name) {
     const tx = db.transaction(STORE_NAME, 'readwrite'); // Starts a transaction to modify data
     await tx.store.add({ name, words: [] }); // Adds the new dictionary with an empty 'words' array
     await tx.done;
-  } catch {
-    throw new Error('Error occurred');
+  } catch(error) {
+    throw new Error(error.message);
   }
 }
 
@@ -53,10 +53,10 @@ export async function addWordToDictionary(db, dictionaryName, word, translation)
       await tx.store.put(dictionary); // Save the updated dictionary with the new word
       await tx.done;
     } else {
-      throw new Error('Error occurred');
+      throw new Error(error.message);
     }
-  } catch {
-    throw new Error('Error occurred');
+  } catch(error) {
+    throw new Error(error.message);
   }
 }
 
@@ -66,8 +66,8 @@ export async function getDictionaries(db) {
   try {
     const tx = db.transaction(STORE_NAME, 'readonly'); // Starts a transaction to read data only
     return await tx.store.getAll(); // Fetches all dictionaries stored
-  } catch {
-    throw new Error('Error occurred');
+  } catch(error) {
+    throw new Error(error.message);
   }
 }
 
@@ -77,8 +77,8 @@ export async function getOneDictionary(db, name) {
   try {
     const tx = db.transaction(STORE_NAME, 'readonly');
     return await tx.store.index('name').get(name); // Finds dictionary by its name
-  } catch {
-    throw new Error('Error occurred');
+  } catch(error) {
+    throw new Error(error.message);
   }
 }
 
@@ -93,8 +93,8 @@ export async function updateDictionary(db, id, updatedName) {
       await tx.store.put(dictionary); // Saves the dictionary with updated name
       await tx.done;
     }
-  } catch {
-    throw new Error('Error occurred');
+  } catch(error) {
+    throw new Error(error.message);
   }
 }
 
@@ -104,8 +104,8 @@ export async function deleteDictionary(db, id) {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     await tx.store.delete(id); // Removes dictionary by its ID
     await tx.done;
-  } catch {
-    throw new Error('Error occurred');
+  } catch(error) {
+    throw new Error(error.message);
   }
 }
 
@@ -115,8 +115,8 @@ export async function getWordsByDictionaryName(db, dictionaryName) {
   try {
     const dictionary = await getOneDictionary(db, dictionaryName);
     return dictionary ? dictionary.words : []; // Returns the words if dictionary is found
-  } catch {
-    throw new Error('Error occurred');
+  } catch(error) {
+    throw new Error(error.message);
   }
 }
 
@@ -126,8 +126,8 @@ export async function getOnePairOfWords(db, dictionaryName, word) {
   try {
     const words = await getWordsByDictionaryName(db, dictionaryName);
     return words.find(item => item.word === word) || null; // Searches for a word match
-  } catch {
-    throw new Error('Error occurred');
+  } catch(error) {
+    throw new Error(error.message);
   }
 }
 
@@ -146,13 +146,13 @@ export async function updateWordInDictionary(db, dictionaryName, originalWord, o
         await tx.store.put(dictionary); // Saves the dictionary with updated word
         await tx.done;
       } else {
-        throw new Error('Error occurred');
+        throw new Error(error.message);
       }
     } else {
-      throw new Error('Error occurred');
+      throw new Error(error.message);
     }
-  } catch {
-    throw new Error('Error occurred');
+  } catch(error) {
+    throw new Error(error.message);
   }
 }
 
@@ -167,8 +167,8 @@ export async function deleteWordFromDictionary(db, dictionaryName, word, transla
       await tx.store.put(dictionary); // Saves the dictionary after removing the word pair
       await tx.done;
     }
-  } catch {
-    throw new Error('Error occurred');
+  } catch(error) {
+    throw new Error(error.message);
   }
 }
 
