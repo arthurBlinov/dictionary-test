@@ -21,7 +21,7 @@ props: {
 methods: {
   // Methods: define functions for specific operations
   handleAdd() {
-    // Emits a "click" events when handleAdd is called,
+    // Emits a click events when handleAdd is called,
     // allowing the parent component to respond to the click
     this.$emit("click");
   },

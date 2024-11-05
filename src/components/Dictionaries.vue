@@ -13,8 +13,8 @@
           class="dictionary-item"
         >
           <font-awesome-icon icon="book" class="icon-left" />
-          <span class="dictionary-name">{{ dictionary.name }}</span>
-          <RouterLink :to="`/add-edit-dictionary/${dictionary.name}`">
+          <span class="dictionary-name">{{ dictionary.language1}} - {{dictionary.language2}}</span>
+          <RouterLink :to="`/add-edit-dictionary/${dictionary.language1}/${dictionary.language2}/${dictionary.id}`">
             <font-awesome-icon icon="pen" class="icon-right" />
           </RouterLink>
         </li>
@@ -100,6 +100,8 @@
       async loadDictionaries(db) {
         try {
           this.dictionaries = await getDictionaries(db);
+          // console.log(this.dictionaries);
+          
         } catch (error) {
           this.errorMessage = error;
           this.showErrorPopup = true;

@@ -1,7 +1,12 @@
 <template>
         <BodyForAll>
           <ErrorPopup v-if="showErrorPopup" :message="errorMessage" @close="closeErrorPopup" />
-
+          <ConfirmationDialog 
+            v-if="showConfirmationDialog" 
+            message="Are you sure you want to delete this dictionary?" 
+            @confirm="confirmDelete" 
+            @cancel="cancelDelete"
+          />
       <div class="correct-answers-container">
         <div class="correct-answers">
           <span class="results">0/0</span>
@@ -26,8 +31,8 @@
       <ButtonsGroup>
 
         <AddSaveBtn @click="updateWord" :disabled="!isFormValid">Save</AddSaveBtn>
-        <CancelBtn :to="`/add-edit-dictionary/${dictionaryName}`">Cancel</CancelBtn>
-        <DeleteBtn to="" @click="deleteWord">Delete Word</DeleteBtn>
+        <CancelBtn :to="`/add-edit-dictionary/${language1}/${language2}/${dictID}`">Cancel</CancelBtn>
+        <DeleteBtn to="" @click="showDeleteConfirmation">Delete Word</DeleteBtn>
       </ButtonsGroup>
 
     </BodyForAll>
@@ -46,7 +51,7 @@ import AddSaveBtn from './partials/AddSaveBtn.vue';
 import DeleteBtn from './partials/DeleteBtn.vue';
 import CancelBtn from './partials/CancelBtn.vue';
 import ErrorPopup from './ErrorPopup.vue';
-
+import ConfirmationDialog from './ConfirmationDialog.vue';
 library.add(faRotateRight);
 
 export default {
@@ -58,7 +63,9 @@ export default {
     AddSaveBtn,
     DeleteBtn,
     CancelBtn,
-    ErrorPopup
+    ErrorPopup,
+    ConfirmationDialog
+
   },
   data() {
     return {
@@ -66,11 +73,19 @@ export default {
       editableTranslation: this.$route.params.translation,
       showErrorPopup: false,
       errorMessage: '', 
+      showConfirmationDialog: false, 
+
     };
   },
   computed: {
+    dictID(){
+      return this.$route.params.dictID;
+    },
     dictionaryName() {
-      return this.$route.params.dictName;
+      return this.$route.params.dictionary;
+    },
+    wordID(){
+      return this.$route.params.wordID;
     },
     language1() {
       return this.dictionaryName ? this.dictionaryName.split('-')[0] : 'Language 1';
@@ -100,27 +115,33 @@ export default {
         const db = await initDB();
         await updateWordInDictionary(
           db,
-          this.dictionaryName,
-          this.$route.params.word,
-          this.$route.params.translation,
-          { word: this.editableWord, translation: this.editableTranslation }
+          this.dictID,
+          this.wordID,
+          this.editableWord, 
+          this.editableTranslation
         );
-        this.$router.push(`/add-edit-dictionary/${this.dictionaryName}`);
+        this.$router.push(`/add-edit-dictionary/${this.language1}/${this.language2}/${this.dictID}`);
       } catch (error) {
         this.errorMessage = error;
         this.showErrorPopup = true;
       }
     },
-    async deleteWord() {
+    showDeleteConfirmation() {
+      this.showConfirmationDialog = true; 
+    },
+    cancelDelete() {
+      this.showConfirmationDialog = false;
+    },
+    async confirmDelete() {
+      this.showConfirmationDialog = false;
       try {
         const db = await initDB();
         await deleteWordFromDictionary(
           db,
-          this.dictionaryName,
-          this.editableWord,
-          this.editableTranslation
+          this.dictID,
+          this.wordID
         );
-        this.$router.push(`/add-edit-dictionary/${this.dictionaryName}`);
+        this.$router.push(`/add-edit-dictionary/${this.language1}/${this.language2}/${this.dictID}`);
       } catch (error) {
         this.errorMessage = error;
         this.showErrorPopup = true;

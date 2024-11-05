@@ -11,10 +11,11 @@
         <button v-if="showImportExportBtn" @click="showDialog = true" class="import-export-button">
         Import/Export
       </button>
-      <h1>{{ currentTitle }}</h1>
+      <h1>{{ shortenedTitle }}</h1>
+
       </div>
       
-      <RouterLink v-if="showPenIcon" :to="`/edit-dictionary/${currentTitle}`">
+      <RouterLink v-if="showPenIcon" :to="`/edit-dictionary/${currentTitle.split(' - ').join('/')}/${dictID}`">
         <font-awesome-icon icon="pen" class="icon-right" />
       </RouterLink>
       <Loading v-if="loading" />
@@ -33,7 +34,7 @@
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
   import { faPen, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
   import { library } from '@fortawesome/fontawesome-svg-core';
-  import { initDB, getWordsByDictionaryName, addWordToDictionary } from '@/db/db';
+  import { initDB, getWordsByDictionaryId, addWordToDictionary } from '@/db/db';
   import Loading from '@/components/Loading.vue';
   import ErrorPopup from './ErrorPopup.vue';
   
@@ -46,6 +47,7 @@
       Loading,
       ErrorPopup
     },
+
     data() {
       return {
         currentTitle: '',
@@ -56,6 +58,7 @@
         showBackArrow: false,
         showErrorPopup: false,
         errorMessage: '',
+        dictID: ''
       };
     },
     watch: {
@@ -63,11 +66,23 @@
         this.updateTitle(to);
       },
     },
+    computed: {
+  shortenedTitle() {
+    // Check if the current title length exceeds 20 characters
+    if (this.currentTitle.length > 20) {
+      // Trim and add ellipsis if necessary
+      return this.currentTitle.slice(0, 17) + '...';
+    }
+    // Return the original title if within limit
+    return this.currentTitle;
+  }
+},
     methods: {
       updateTitle(route) {
-        if(route.params.dictName){
+        if(route.params.dictLang1 && route.params.dictLang2){
             if(route.name === 'addEditDictionary'){
-                this.currentTitle = route.params.dictName;
+                this.currentTitle = `${route.params.dictLang1} - ${route.params.dictLang2}`;
+                this.dictID = `${this.$route.params.dictID}`
                 this.showBackArrow = true;
                 this.showPenIcon = true;
                 this.showImportExportBtn = true;
@@ -101,35 +116,47 @@
       closeDialog() {
         this.showDialog = false;
       },
-      async exportWords() {
-        this.closeDialog();
-        this.loading = true;
-        try {
-          const db = await initDB();
-          const words = await getWordsByDictionaryName(db, this.currentTitle);
-          if (!words || words.length === 0) {
-            alert('No words to export.');
-            this.loading = false;
-            return;
-          }
-          const csvContent = words.map((item) => `${item.word},${item.translation}`).join('\n');
-          const blob = new Blob([csvContent], { type: 'text/plain' });
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = `${this.currentTitle}_words.txt`;
-          link.style.display = 'none';
-          document.body.appendChild(link);
-          link.click();
-          URL.revokeObjectURL(link.href);
-          document.body.removeChild(link);
-        } catch (error) {
-          this.errorMessage = error;
-          this.showErrorPopup = true;
-        } finally {
-          this.loading = false;
-        }
-      },
-      async importWords(event) {
+async exportWords() {
+  this.closeDialog();
+  this.loading = true;
+  try {
+    const db = await initDB();
+    const words = await getWordsByDictionaryId(db, this.dictID);
+
+    if (!words || words.length === 0) {
+      this.loading = false;
+      this.showErrorPopup = true;
+      this.errorMessage = 'the dictionary must have at least one word'
+      return;
+    }
+    
+    // Generate CSV content from words
+    const csvContent = words.map((item) => `${item.word},${item.translation}`).join('\n');
+    
+    // Add the dictionary name at the top of the content
+    const dictName = `${this.$route.params.dictLang1}-${this.$route.params.dictLang2}`;
+    const fullContent = `${dictName}\n\n${csvContent}`;  // Dictionary name at the top
+    
+    // Create a Blob and download link
+    const blob = new Blob([fullContent], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${dictName}_words.txt`;
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    URL.revokeObjectURL(link.href);
+    document.body.removeChild(link);
+  } catch (error) {
+    this.errorMessage = error;
+    this.showErrorPopup = true;
+  } finally {
+    this.loading = false;
+  }
+},
+
+
+async importWords(event) {
   this.closeDialog();
   this.loading = true;
   const file = event.target.files[0];
@@ -148,7 +175,7 @@
 
     try {
       const db = await initDB();
-      const existingWords = await getWordsByDictionaryName(db, this.currentTitle);
+      const existingWords = await getWordsByDictionaryId(db, this.dictID);;
       const existingWordsSet = new Set(existingWords.map(word => word.word));
 
       for (const line of lines) {
@@ -164,7 +191,7 @@
 
         // Trim and check if the word already exists in the dictionary
         if (!existingWordsSet.has(word.trim())) {
-          await addWordToDictionary(db, this.currentTitle, word.trim(), translation.trim());
+          await addWordToDictionary(db, this.dictID, word.trim(), translation.trim());
         }
       }
 
@@ -193,7 +220,9 @@
     },
     created() {
       this.updateTitle(this.$route);
+
     },
+
   };
   </script>
   
@@ -207,6 +236,8 @@
     align-items: center;
     justify-content: center;
     position: relative;
+    max-width: 600px;
+    margin: auto;
     .title-with-btn {
         display: flex;
         flex-direction: column;

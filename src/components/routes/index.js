@@ -10,10 +10,10 @@ const routes = [
   { path: '/', component: MainPage, name: 'main' },
   { path: '/dict', component: Dictionaries, name: 'dictionaries' },
   { path: '/create-dict', component: AddDictionary, name: 'addNewDictionary' },
-  { path: '/add-edit-dictionary/:dictName', component: AddEditDictionary, name: 'addEditDictionary' },
-  { path: '/edit-dictionary/:dictName', component: EditDictionary, name: 'editDictionary' },
-  { path: '/add-new-word/:dictName', component: AddNewWord, name: 'addNewWord' },
-  { path: '/edit-word/:dictName/:word/:translation', component: EditWords, name: 'editWords' },
+  { path: '/add-edit-dictionary/:dictLang1/:dictLang2/:dictID', component: AddEditDictionary, name: 'addEditDictionary' },
+  { path: '/edit-dictionary/:dictLang1/:dictLang2/:dictID', component: EditDictionary, name: 'editDictionary' },
+  { path: '/add-new-word/:dictLang1/:dictLang2/:dictID', component: AddNewWord, name: 'addNewWord' },
+  { path: '/:wordID/:word/:translation/:dictionary/:dictID', component: EditWords, name: 'editWords' },
 ];
 
   const router = createRouter({

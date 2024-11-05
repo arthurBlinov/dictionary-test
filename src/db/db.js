@@ -15,48 +15,54 @@ import { openDB } from 'idb';
 const DATABASE_NAME = 'dictionaryDB';
 const STORE_NAME = 'dictionaries';
 
-// Sets up the IndexedDB database.
-// Creates an object store named 'dictionaries' if it doesn't exist already.
+// Sets up the IndexedDB database, creating a store named 'dictionaries' with an 'id' key.
 export async function initDB() {
   return openDB(DATABASE_NAME, 1, {
     upgrade(db) {
       if (!db.objectStoreNames.contains(STORE_NAME)) {
-        // Create a store with 'id' as the unique key for each entry, set to auto-increment
         const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-        store.createIndex('name', 'name', { unique: true });
+        store.createIndex("languageIndex", ["language1", "language2"], { unique: false });
       }
     },
   });
 }
 
 
-// Adds a new dictionary to the dictionaries store with an empty word list.
-
-export async function addDictionary(db, name) {
+// Adds a new dictionary with separate fields for language1 and language2, and an empty words array.
+export async function addDictionary(db, language1, language2) {
   try {
-    const tx = db.transaction(STORE_NAME, 'readwrite'); // Starts a transaction to modify data
-    await tx.store.add({ name, words: [] }); // Adds the new dictionary with an empty 'words' array
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    await store.add({ language1, language2, words: [] }); 
     await tx.done;
-  } catch(error) {
-    throw new Error(error.message);
+  } catch (error) {
+    throw new Error("Failed to add dictionary");
   }
 }
 
- // Adds a word and its translation to a specific dictionary by its name.
-
-export async function addWordToDictionary(db, dictionaryName, word, translation) {
+// Adds a word and its translation to a dictionary specified by its ID
+export async function addWordToDictionary(db, dictionaryId, word, translation) {
   try {
-    const dictionary = await getOneDictionary(db, dictionaryName); // Find the dictionary by name
+    const dictionary = await getOneDictionary(db, dictionaryId);
+
     if (dictionary) {
-      dictionary.words.push({ word, translation }); // Add new word and translation to dictionary's words array
+      // Assign a unique auto-incremented ID for the new word
+      const newWord = {
+        id: dictionary.words.length,
+        word,
+        translation
+      };
+
+      dictionary.words.push(newWord);
       const tx = db.transaction(STORE_NAME, 'readwrite');
-      await tx.store.put(dictionary); // Save the updated dictionary with the new word
+      await tx.store.put(dictionary);
       await tx.done;
+
     } else {
-      throw new Error(error.message);
+      throw new Error("Dictionary not found");
     }
-  } catch(error) {
-    throw new Error(error.message);
+  } catch (error) {
+    throw new Error("Sorry, failed to add word to dictionary, error");
   }
 }
 
@@ -64,37 +70,37 @@ export async function addWordToDictionary(db, dictionaryName, word, translation)
 // Retrieves all dictionaries from the database.
 export async function getDictionaries(db) {
   try {
-    const tx = db.transaction(STORE_NAME, 'readonly'); // Starts a transaction to read data only
-    return await tx.store.getAll(); // Fetches all dictionaries stored
-  } catch(error) {
-    throw new Error(error.message);
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    return await tx.store.getAll();
+  } catch (error) {
+    throw new Error("Sorry, failed to get dictionaries, error");
   }
 }
 
- 
-// Retrieves a single dictionary by its name.
-export async function getOneDictionary(db, name) {
+// Retrieves a single dictionary by its ID.
+export async function getOneDictionary(db, id) {
   try {
     const tx = db.transaction(STORE_NAME, 'readonly');
-    return await tx.store.index('name').get(name); // Finds dictionary by its name
-  } catch(error) {
-    throw new Error(error.message);
+    return await tx.store.get(Number(id));
+  } catch (error) {
+    throw new Error("Sorry, failed to get dictionary, error");
   }
 }
 
- 
-// Updates the name of a specific dictionary identified by its ID.
-export async function updateDictionary(db, id, updatedName) {
+// Updates the languages of a specific dictionary by its ID.
+export async function updateDictionary(db, id, updatedLanguage1, updatedLanguage2) {
   try {
     const tx = db.transaction(STORE_NAME, 'readwrite');
-    const dictionary = await tx.store.get(id); // Retrieves dictionary by ID
+    const dictionary = await tx.store.get(Number(id));
     if (dictionary) {
-      dictionary.name = updatedName; // Changes the dictionary's name
-      await tx.store.put(dictionary); // Saves the dictionary with updated name
+      dictionary.language1 = updatedLanguage1;
+      dictionary.language2 = updatedLanguage2;
+      await tx.store.put(dictionary);
       await tx.done;
     }
-  } catch(error) {
-    throw new Error(error.message);
+    return;
+  } catch (error) {
+    throw new Error("Sorry, failed to update dictionary, error");
   }
 }
 
@@ -102,75 +108,74 @@ export async function updateDictionary(db, id, updatedName) {
 export async function deleteDictionary(db, id) {
   try {
     const tx = db.transaction(STORE_NAME, 'readwrite');
-    await tx.store.delete(id); // Removes dictionary by its ID
+    await tx.store.delete(Number(id));
     await tx.done;
-  } catch(error) {
-    throw new Error(error.message);
+  } catch (error) {
+    throw new Error("Sorry, the dictionary is not deleted, error");
   }
 }
 
-
-// Retrieves all words from a dictionary specified by its name.
-export async function getWordsByDictionaryName(db, dictionaryName) {
+// Retrieves all words in a dictionary specified by its ID.
+export async function getWordsByDictionaryId(db, dictionaryId) {
   try {
-    const dictionary = await getOneDictionary(db, dictionaryName);
-    return dictionary ? dictionary.words : []; // Returns the words if dictionary is found
-  } catch(error) {
-    throw new Error(error.message);
+    const dictionary = await getOneDictionary(db, dictionaryId);
+    return dictionary ? dictionary.words : [];
+  } catch (error) {
+    throw new Error("Sorry, failed to retrieve words in this dictionary, error");
   }
 }
 
- 
-// Finds a word and its translation in a specific dictionary.
-export async function getOnePairOfWords(db, dictionaryName, word) {
+// Retrieves a single word in a dictionary by word ID.
+export async function getOnePairOfWords(db, dictionaryId, wordId) {
   try {
-    const words = await getWordsByDictionaryName(db, dictionaryName);
-    return words.find(item => item.word === word) || null; // Searches for a word match
-  } catch(error) {
-    throw new Error(error.message);
+    const words = await getWordsByDictionaryId(db, dictionaryId);
+    return words.find(item => item.id === wordId) || null;
+  } catch (error) {
+    throw new Error("Sorry, failed to retrieve words, error");
   }
 }
 
- 
-// Updates a word pair (word and translation) in a dictionary.
-export async function updateWordInDictionary(db, dictionaryName, originalWord, originalTranslation, updatedTranslation) {
+// Updates a word pair in a dictionary by word ID.
+export async function updateWordInDictionary(db, dictionaryId, wordId, updatedWord, updatedTranslation) {
+  console.log(dictionaryId, wordId, updatedWord, updatedTranslation);
+  
   try {
-    const dictionary = await getOneDictionary(db, dictionaryName); // Get the dictionary by name
+    const dictionary = await getOneDictionary(db, dictionaryId);
     if (dictionary) {
-      const wordIndex = dictionary.words.findIndex(
-        item => item.word === originalWord && item.translation === originalTranslation
-      );
+      const wordIndex = dictionary.words.findIndex(item => item.id === Number(wordId));
       if (wordIndex > -1) {
-        dictionary.words[wordIndex] = updatedTranslation; // Changes the word translation
+        dictionary.words[wordIndex].word = updatedWord;
+        dictionary.words[wordIndex].translation = updatedTranslation;
+        
         const tx = db.transaction(STORE_NAME, 'readwrite');
-        await tx.store.put(dictionary); // Saves the dictionary with updated word
+        await tx.store.put(dictionary);
         await tx.done;
       } else {
-        throw new Error(error.message);
+        throw new Error("Sorry, word is not found in dictionary, error");
       }
     } else {
-      throw new Error(error.message);
+      throw new Error("Dictionary not found");
     }
-  } catch(error) {
-    throw new Error(error.message);
+  } catch (error) {
+    throw new Error("Sorry, failed to update word in dictionary, error");
   }
 }
 
-
-// Removes a specific word pair (word and translation) from a dictionary.
-export async function deleteWordFromDictionary(db, dictionaryName, word, translation) {
+// Deletes a word from a dictionary by word ID.
+export async function deleteWordFromDictionary(db, dictionaryId, wordId) {
   try {
-    const dictionary = await getOneDictionary(db, dictionaryName); // Get dictionary by name
+    const dictionary = await getOneDictionary(db, dictionaryId);
     if (dictionary) {
-      dictionary.words = dictionary.words.filter(item => item.word !== word || item.translation !== translation);
+      dictionary.words = dictionary.words.filter(item => item.id !== Number(wordId));
       const tx = db.transaction(STORE_NAME, 'readwrite');
-      await tx.store.put(dictionary); // Saves the dictionary after removing the word pair
+      await tx.store.put(dictionary);
       await tx.done;
     }
-  } catch(error) {
-    throw new Error(error.message);
+  } catch (error) {
+    throw new Error("Sorry, failed to delete word from dictionary, error");
   }
 }
+
 
 
 

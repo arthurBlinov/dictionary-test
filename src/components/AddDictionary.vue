@@ -1,31 +1,36 @@
 <template>
-    <BodyForAll>
-      <ErrorPopup v-if="showErrorPopup" :message="errorMessage" @close="closeErrorPopup" />
-      <form class="dictionary-form" @submit.prevent="handleAdd">
-        <!-- for="language1": Links the label to the input with id="language1", 
-         so clicking the label focuses on the input, improving usability. -->
-        <label for="language1">Language 1</label>
-        <!-- v-model= language1 is updated with the input’s value, 
-         and if language1 changes programmatically, the input reflects 
-         that change. -->
-         <!-- :class= Dynamically adds the input-error class if isLanguage1Valid is false -->
-        <input type="text" id="language1" v-model="language1" placeholder="Language" :class="{ 'input-error': !isLanguage1Valid }" />
-  
-        <label for="language2">Language 2</label>
-        <input type="text" id="language2" v-model="language2" placeholder="Language" :class="{ 'input-error': !isLanguage2Valid }"/>
-  
-        <ButtonsGroup>
-          <!-- disabled= if the form not valid -->
-          <AddSaveBtn @click="handleAdd" :disabled="!isFormValid">Add</AddSaveBtn>
-          <CancelBtn to="/dict">Cancel</CancelBtn>
-        </ButtonsGroup>
-      </form>
-    </BodyForAll>
-  </template>
-  
-  <script>
-import { initDB, addDictionary } from '@/db/db'; 
-import { validateInput } from './validation/validateInput';
+  <BodyForAll>
+    <ErrorPopup v-if="showErrorPopup" :message="errorMessage" @close="closeErrorPopup" />
+    <form class="dictionary-form" @submit.prevent="handleAdd">
+      <label for="language1">Language 1</label>
+      <input
+        type="text"
+        id="language1"
+        v-model="language1"
+        placeholder="Language"
+        :class="{ 'input-error': !isLanguage1Valid }"
+      />
+      <p v-if="!isLanguage1Valid" class="error-message">Must be less than 15 characters.</p>
+      <label for="language2">Language 2</label>
+      <input
+        type="text"
+        id="language2"
+        v-model="language2"
+        placeholder="Language"
+        :class="{ 'input-error': !isLanguage2Valid }"
+      />
+      <p v-if="!isLanguage2Valid" class="error-message">Must be less than 15 characters.</p>
+
+      <ButtonsGroup>
+        <AddSaveBtn @click="handleAdd" :disabled="!isFormValid">Add</AddSaveBtn>
+        <CancelBtn to="/dict">Cancel</CancelBtn>
+      </ButtonsGroup>
+    </form>
+  </BodyForAll>
+</template>
+
+<script>
+import { initDB, addDictionary } from '@/db/db';
 import BodyForAll from "./partials/BodyForAll.vue";
 import ButtonsGroup from './partials/ButtonsGroup.vue';
 import AddSaveBtn from './partials/AddSaveBtn.vue';
@@ -33,9 +38,7 @@ import CancelBtn from './partials/CancelBtn.vue';
 import ErrorPopup from './ErrorPopup.vue';
 
 export default {
-  // name of the component
   name: 'AddDictionary',
-  // imported components
   components: {
     BodyForAll,
     ButtonsGroup,
@@ -43,9 +46,6 @@ export default {
     CancelBtn,
     ErrorPopup
   },
-  // data() is a function that provides 
-  // an object with properties, defining the component's 
-  // state used through the component logic.
   data() {
     return {
       language1: '',
@@ -54,15 +54,12 @@ export default {
       errorMessage: '',
     };
   },
-  // Computed properties are functions that return values based on data 
-  // or other computed values, automatically updating 
-  // only when their dependencies change
   computed: {
     isLanguage1Valid() {
-      return validateInput(this.language1);
+      return this.language1.length < 15;
     },
     isLanguage2Valid() {
-      return validateInput(this.language2);
+      return this.language2.length < 15;
     },
     isFormValid() {
       return this.isLanguage1Valid && this.isLanguage2Valid;
@@ -72,13 +69,11 @@ export default {
     async handleAdd() {
       try {
         const db = await initDB();
-        const name = `${this.language1}-${this.language2}`;
-
-        if (this.language1 && this.language2) {
-          await addDictionary(db, name); 
+        if (this.language1 && this.language2 && this.isFormValid) {
+          await addDictionary(db, this.language1, this.language2); 
           this.$router.push('/dict'); 
         } else {
-          this.errorMessage = 'Error occured';
+          this.errorMessage = 'Languages must be added and length must be less then 15';
           this.showErrorPopup = true;
         }
       } catch (error) {
@@ -92,44 +87,48 @@ export default {
   },
 };
 </script>
-  <style scoped lang="scss">
-  @import "@/styles/main.scss";
 
-  
-    .dictionary-form {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-  
-      label {
-        font-size: $font-size;
-        margin-top: 10px;
-        margin-bottom: 5px;
-        color: $gray;
-      }
-  
-      input {
-        padding: 10px;
-        font-size: $font-size;
-        border: 1px solid $gray;
-        border-radius: 5px;
-        margin-bottom: 15px;
-        color: $black;
-        background-color: $white;
-        outline: none;
-  
-        &::placeholder {
-          color: $gray;
-        }
-      }
-  
-      
-        
-      .input-error {
-      border-color: $red;
-    }
-    }
-    
+<style scoped lang="scss">
+@import "@/styles/main.scss";
 
-  </style>
+.dictionary-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-size: $font-size;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: $gray;
+  }
+
+  input {
+    padding: 10px;
+    font-size: $font-size;
+    border: 1px solid $gray;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    color: $black;
+    background-color: $white;
+    outline: none;
+
+    &::placeholder {
+      color: $gray;
+    }
+  }
+
+  .input-error {
+    border-color: $red;
+  }
+
+  .error-message {
+    color: $red;
+    font-size: 0.9rem;
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+}
+</style>
+
   

@@ -40,11 +40,7 @@
             <div class="info-play-alg">0/0</div>
           </div>
           <RouterLink
-            :to="{
-                name: 'editWords',
-                params: { dictName: dictionaryName, word: word.word, translation: word.translation }
-            }"
-            class="edit-icon"
+            :to="`/${word.id}/${word.word}/${word.translation}/${language1}-${language2}/${dictionaryID}`" class="edit-icon"
             >
         <font-awesome-icon icon="pen" class="pen-icon"/>
         </RouterLink>
@@ -64,7 +60,7 @@
         <button v-if="shouldShowRightEllipsis" disabled>...</button>
         <button v-if="currentPage < totalPages" @click="goToPage(currentPage + 1)">→</button>
       </div>
-      <RouterLink :to="`/add-new-word/${dictionaryName}`" class="add-word-button">Add New Word</RouterLink>
+      <RouterLink :to="`/add-new-word/${language1}/${language2}/${dictionaryID}`" class="add-word-button">Add New Word</RouterLink>
     </BodyForAll>
   </template>
   
@@ -72,7 +68,7 @@
   import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
   import { faSearch, faPen } from '@fortawesome/free-solid-svg-icons';
   import { library } from '@fortawesome/fontawesome-svg-core';
-  import { initDB, getWordsByDictionaryName } from '@/db/db';
+  import { initDB, getWordsByDictionaryId } from '@/db/db';
   import BodyForAll from "./partials/BodyForAll.vue";
   import ErrorPopup from './ErrorPopup.vue';
   library.add(faSearch, faPen);
@@ -94,10 +90,20 @@
       showErrorPopup: false,
       errorMessage: '', 
     };
+    
   },
   computed: {
-    dictionaryName() {
-      return this.$route.params.dictName;
+    dictionaryID() {
+      return this.$route.params.dictID;
+    },
+    wordID(){
+      return this.$route.params.wordID;
+    },
+    language1() {
+      return this.$route.params.dictLang1;
+    },
+    language2() {
+      return this.$route.params.dictLang2;
     },
     filteredWords() {
       if (!this.searchQuery) return this.words;
@@ -147,7 +153,7 @@
   async created() {
     try {
       const db = await initDB();
-      this.words = await getWordsByDictionaryName(db, this.dictionaryName);
+      this.words = await getWordsByDictionaryId(db, this.dictionaryID);
     } catch (error) {
       this.errorMessage = error;
       this.showErrorPopup = true;

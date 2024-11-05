@@ -19,6 +19,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  max-width: 600px;
+  margin: auto;
 }
 
 .container-items {
