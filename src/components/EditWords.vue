@@ -21,6 +21,8 @@
         v-model="editableWord"
         :class="{ 'input-error': !isEditableWordValid }"
       />
+    <p v-if="!isEditableWordLengthValid" class="error-message">Must be less than 15 characters.</p>
+
       <label :for="language2">{{ language2 }}</label>
       <input
         type="text"
@@ -28,6 +30,8 @@
         v-model="editableTranslation"
         :class="{ 'input-error': !isEditableTranslationValid }"
       />
+    <p v-if="!isEditableTranslationLengthValid" class="error-message">Must be less than 15 characters.</p>
+
       <ButtonsGroup>
 
         <AddSaveBtn @click="updateWord" :disabled="!isFormValid">Save</AddSaveBtn>
@@ -102,6 +106,12 @@ export default {
     isFormValid() {
       return this.isEditableWordValid && this.isEditableTranslationValid;
     },
+    isEditableWordLengthValid() {
+      return this.editableWord.length < 15;
+    },
+    isEditableTranslationLengthValid() {
+      return this.editableTranslation.length < 15;
+    },
   },
   methods: {
     async updateWord() {
@@ -152,59 +162,68 @@ export default {
 </script>
 
   
-  <style scoped lang="scss">
-  @import "@/styles/main.scss";
-  
-  
-  
-    .correct-answers-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: $white;
-      padding: 5px 15px;
-      border-radius: 30px;
-      margin-bottom: 1rem;
-  
-      .refresh-icon {
-        font-size: $font-size; 
-        color: $bg-main;
-        cursor: pointer;
-      }
-  
-      .correct-answers {
-        font-size: $font-size;
-        color: $black;
-        
-        .results {
-          margin-right: 1.5rem;
-          color: $bg-main;
+<style scoped lang="scss">
+@import "@/styles/main.scss";
 
-        }
-      }
-    }
-  
-    label {
-      font-size: $small-font-size;
-      margin-top: 1rem;
-      margin-bottom: 0.5rem;
+.correct-answers-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $white;
+  padding: 5px 15px;
+  border-radius: 30px;
+  margin-bottom: 1rem;
+
+  .refresh-icon {
+    font-size: $font-size; 
+    color: $bg-main;
+    cursor: pointer;
+  }
+
+  .correct-answers {
+    font-size: $font-size;
+    color: $black;
+    
+    .results {
+      margin-right: 1.5rem;
       color: $bg-main;
     }
-  
-    input {
-      width: 100%;
-      padding: 10px;
-      font-size: 1rem;
-      border: 1px solid $gray;
-      border-radius: 5px;
-      outline: none;
-      margin-bottom: 1rem;
-  
-      &::placeholder {
-        color: $gray;
-      }
-    }
+  }
+}
+
+label {
+  font-size: $small-font-size;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: $bg-main;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid $gray;
+  border-radius: 5px;
+  outline: none;
+  margin-bottom: 1rem;
+
+  &::placeholder {
+    color: $gray;
+  }
+}
+
+.input-error {
+  border-color: $red;
+}
+
+.error-message {
+  color: $red;
+  font-size: 0.9rem;
+  margin-top: -10px;
+  margin-bottom: 10px;
+}
 </style>
+
   
   
   

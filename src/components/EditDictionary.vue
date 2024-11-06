@@ -16,7 +16,8 @@
       placeholder="First language"
       :class="{ 'input-error': !isLanguage1Valid }"
     />
-
+    <p v-if="!isLanguage1Valid" class="error-message">Must be less than 15 characters.</p>
+    
     <label for="language2">Language 2</label>
     <input
       type="text"
@@ -25,7 +26,8 @@
       placeholder="Second language"
       :class="{ 'input-error': !isLanguage2Valid }"
     />
-
+    <p v-if="!isLanguage2Valid" class="error-message">Must be less than 15 characters.</p>
+   
     <ButtonsGroup>
       <AddSaveBtn @click="updateDictionary" :disabled="!isFormValid">Save</AddSaveBtn>
       <CancelBtn :to="{ name: 'addEditDictionary', params: { dictLang1: dictLang1, dictLang2: dictLang2, dictID: dictID } }">
@@ -79,6 +81,12 @@ export default {
     },
     isFormValid() {
       return this.isLanguage1Valid && this.isLanguage2Valid;
+    },
+    isLanguage1Valid() {
+      return this.language1.length < 15;
+    },
+    isLanguage2Valid() {
+      return this.language2.length < 15;
     },
   },
   async created() {
@@ -169,6 +177,12 @@ input {
 
 .input-error {
   border-color: $red;
+}
+.error-message {
+  color: $red;
+  font-size: 0.9rem;
+  margin-top: -10px;
+  margin-bottom: 10px;
 }
 </style>
 
