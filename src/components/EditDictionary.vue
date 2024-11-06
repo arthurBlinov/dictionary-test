@@ -16,7 +16,7 @@
       placeholder="First language"
       :class="{ 'input-error': !isLanguage1Valid }"
     />
-    <p v-if="!isLanguage1Valid" class="error-message">Must be less than 15 characters.</p>
+    <p v-if="!isLanguage1Valid" class="error-message">Must be more then one and less than 15 characters.</p>
     
     <label for="language2">Language 2</label>
     <input
@@ -26,7 +26,7 @@
       placeholder="Second language"
       :class="{ 'input-error': !isLanguage2Valid }"
     />
-    <p v-if="!isLanguage2Valid" class="error-message">Must be less than 15 characters.</p>
+    <p v-if="!isLanguage2Valid" class="error-message">Must be more then one and be less than 15 characters.</p>
    
     <ButtonsGroup>
       <AddSaveBtn @click="updateDictionary" :disabled="!isFormValid">Save</AddSaveBtn>
@@ -74,20 +74,15 @@ export default {
   },
   computed: {
     isLanguage1Valid() {
-      return validateInput(this.language1);
+      return this.language1.trim().length > 0 && this.language1.length < 15;
     },
     isLanguage2Valid() {
-      return validateInput(this.language2);
+      return this.language2.trim().length > 0 && this.language2.length < 15;
     },
     isFormValid() {
       return this.isLanguage1Valid && this.isLanguage2Valid;
     },
-    isLanguage1Valid() {
-      return this.language1.length < 15;
-    },
-    isLanguage2Valid() {
-      return this.language2.length < 15;
-    },
+    
   },
   async created() {
     try {
@@ -108,13 +103,18 @@ export default {
   },
   methods: {
     async updateDictionary() {
-      if (!this.isFormValid && !this.language1.length <= 15 && !this.language2.length <= 15) {
-        this.errorMessage = 'Languages must be less than 15 characters each';
+      if (!this.isFormValid) {
+        if (!this.language1.trim()) {
+          this.errorMessage = "Language 1 cannot be empty.";
+        } 
+        if (!this.language2.trim()) {
+          this.errorMessage = "Language 2 cannot be empty.";
+        } else {
+          this.errorMessage = "Languages must be less than 15 characters each.";
+        }
         this.showErrorPopup = true;
         return;
       }
-      console.log(this.language1, this.language2, this.dictID);
-      
       try {
         const db = await initDB();
         if (this.dictID) {

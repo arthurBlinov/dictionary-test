@@ -116,9 +116,16 @@ export default {
   methods: {
     async updateWord() {
       if (!this.isFormValid) {
-        this.errorMessage = 'Must be less then 15'
+        if (!this.editableWord.trim()) {
+          this.errorMessage = "Word cannot be empty.";
+        } 
+         if (!this.editableTranslation.trim()) {
+          this.errorMessage = "Translation cannot be empty.";
+        } else {
+          this.errorMessage = "Words must be less than 15 characters each.";
+        }
         this.showErrorPopup = true;
-        return ;
+        return;
       }
 
       try {
@@ -127,15 +134,33 @@ export default {
           db,
           this.dictID,
           this.wordID,
-          this.editableWord, 
+          this.editableWord,
           this.editableTranslation
         );
         this.$router.push(`/add-edit-dictionary/${this.language1}/${this.language2}/${this.dictID}`);
       } catch (error) {
-        this.errorMessage = error;
+        this.errorMessage = error.message || 'An error occurred while updating the word.';
         this.showErrorPopup = true;
       }
     },
+    showDeleteConfirmation() {
+      this.showConfirmationDialog = true;
+    },
+    cancelDelete() {
+      this.showConfirmationDialog = false;
+    },
+    async confirmDelete() {
+      this.showConfirmationDialog = false;
+      try {
+        const db = await initDB();
+        await deleteWordFromDictionary(db, this.dictID, this.wordID);
+        this.$router.push(`/add-edit-dictionary/${this.language1}/${this.language2}/${this.dictID}`);
+      } catch (error) {
+        this.errorMessage = error.message || 'An error occurred while deleting the word.';
+        this.showErrorPopup = true;
+      }
+    },
+  
     showDeleteConfirmation() {
       this.showConfirmationDialog = true; 
     },
